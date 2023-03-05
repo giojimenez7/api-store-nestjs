@@ -1,8 +1,19 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('orders')
 @Controller('orders')
 export class OrdersController {
   @Get()
+  @ApiOperation({ summary: 'List of orders' })
   getAll() {
     return {
       message: 'orders',
@@ -10,6 +21,7 @@ export class OrdersController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get order' })
   getOne(@Param('id') id: string) {
     return {
       message: `order ${id}`,
@@ -17,6 +29,7 @@ export class OrdersController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create order' })
   create(@Body() payload: any) {
     return {
       message: 'create',
@@ -25,6 +38,7 @@ export class OrdersController {
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update order' })
   update(@Param('id') id: number, @Body() payload: any) {
     return {
       id,
@@ -33,6 +47,7 @@ export class OrdersController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete order' })
   delete(@Param('id') id: number) {
     return {
       id,

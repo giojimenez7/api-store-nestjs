@@ -12,18 +12,20 @@ import {
   Res,
   // ParseIntPipe,
 } from '@nestjs/common';
-
 import { Response } from 'express';
-import { ParseIntPipe } from '../common/parse-int.pipe';
-import { CreateProductDto, UpdateProductDto } from './../dtos/products.dtos';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+import { ParseIntPipe } from '../../common/parse-int.pipe';
+import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
 import { ProductsService } from './../services/products.service';
 
+@ApiTags('products')
 @Controller('products')
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
   @Get()
+  @ApiOperation({ summary: 'List of products' })
   getAll(
     @Query('limit') limit = 100,
     @Query('offset') offset = 0,
@@ -43,6 +45,7 @@ export class ProductsController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get product' })
   @HttpCode(HttpStatus.ACCEPTED)
   getOne(@Param('id', ParseIntPipe) id: number) {
     // response.status(200).send({
@@ -52,6 +55,7 @@ export class ProductsController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create product' })
   create(@Body() payload: CreateProductDto) {
     // return {
     //   message: 'accion de crear',
@@ -61,6 +65,7 @@ export class ProductsController {
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update product' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() payload: UpdateProductDto,
@@ -73,6 +78,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete product' })
   delete(@Param('id', ParseIntPipe) id: number) {
     // return {
     //   id,

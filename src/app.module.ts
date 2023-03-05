@@ -1,21 +1,47 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import * as Joi from 'joi';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProductsController } from './controllers/products.controller';
-import { CategoriesController } from './controllers/categories.controller';
-import { CustomersController } from './controllers/customers.controller';
-import { OrdersController } from './controllers/orders.controller';
-import { UsersController } from './controllers/users.controller';
-import { BrandsController } from './controllers/brands.controller';
-import { ProductsService } from './services/products.service';
-import { BrandsService } from './services/brands.service';
-import { CategoriesService } from './services/categories.service';
-import { CustomersService } from './services/customers.service';
-import { UsersService } from './services/users.service';
+import { UsersModule } from './users/users.module';
+import { ProductsModule } from './products/products.module';
+import { HttpModule, HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
+import { DatabaseModule } from './database/database.module';
+import { enviroments } from './enviroments';
+import config from './config';
 
 @Module({
-  imports: [],
-  controllers: [AppController, ProductsController, CategoriesController, CustomersController, OrdersController, UsersController, BrandsController],
-  providers: [AppService, ProductsService, BrandsService, CategoriesService, CustomersService, UsersService],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: enviroments[process.env.NODE_ENV] || '.env',
+      load: [config],
+      isGlobal: true,
+      validationSchema: Joi.object({
+        API_KEY: Joi.number().required(),
+        DATABASE_NAME: Joi.string().required(),
+        DATABASE_PORT: Joi.number().required(),
+      }),
+    }),
+    HttpModule,
+    UsersModule,
+    ProductsModule,
+    DatabaseModule,
+  ],
+  controllers: [AppController],
+  providers: [
+    AppService,
+    {
+      provide: 'TASKS',
+      useFactory: async (http: HttpService) => {
+        const tasks = await firstValueFrom(
+          http.get('https://jsonplaceholder.typicode.com/todos'),
+        );
+        return tasks.data;
+      },
+      inject: [HttpService],
+    },
+  ],
 })
 export class AppModule {}
